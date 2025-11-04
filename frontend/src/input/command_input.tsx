@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CommandResponse, MainCommandResponse } from "../data/response"
 import "./command_input.css"
 
@@ -12,6 +12,13 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
   // TODO: (Member) Setup anymore states if necessary
 
   // TODO: (Member) Fetch MainCommands in a useEffect
+  useEffect(() => {
+    const fetchMainCommands = async () => {
+      const data = await getMainCommands();
+      setMainCommands(data.data);
+    };
+    fetchMainCommands();
+  }, []);
 
   const handleParameterChange = (param: string, value: string): void => {
     setParameters((prev) => ({
