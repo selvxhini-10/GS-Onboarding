@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CommandResponse, MainCommandResponse } from "../data/response"
 import "./command_input.css"
+import { createCommand, getMainCommands } from "./input_api";
 
 interface CommandInputProp {
   setCommands: React.Dispatch<React.SetStateAction<CommandResponse[]>>
@@ -9,9 +10,11 @@ interface CommandInputProp {
 const CommandInput = ({ setCommands }: CommandInputProp) => {
   const [selectedCommand, setSelectedCommand] = useState<MainCommandResponse | null>(null);
   const [parameters, setParameters] = useState<{ [key: string]: string }>({});
-  // TODO: (Member) Setup anymore states if necessary
+  // COMPLETED: (Member) Setup anymore states if necessary
+  const [mainCommands, setMainCommands] = useState<MainCommandResponse[]>([]);
 
-  // TODO: (Member) Fetch MainCommands in a useEffect
+
+  // COMPLETED: (Member) Fetch MainCommands in a useEffect
   useEffect(() => {
     const fetchMainCommands = async () => {
       const data = await getMainCommands();
@@ -28,7 +31,22 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // TODO:(Member) Submit to your post endpoint 
+    // COMPLETED:(Member) Submit to your post endpoint 
+    e.preventDefault();
+    if (!selectedCommand) {
+      alert("Please select a command type.");
+      return;
+    }
+    try {
+      const commandData = {
+        main_command_id: selectedCommand.id,
+        params: parameters,
+      };
+      const data = await createCommand(commandData);
+      setCommands(data.data);
+    } catch (error) {
+      console.error("Error creating command:", error);
+    }
   }
 
   return (
@@ -37,11 +55,14 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
         <div className="spreader">
           <div>
             <label>Command Type: </label>
-            <select>{/* TODO: (Member) Display the list of commands based on the get commands request.
+            {/* COMPLETED: (Member) Display the list of commands based on the get commands request.
                         It should update the `selectedCommand` field when selecting one.*/}
-              <option value={"1"}>Command 1</option>
-              <option value={"2"}>Command 2</option>
-              <option value={"3"}>Command 3</option>
+            <select onChange={(e) => setSelectedCommand(mainCommands.find(cmd => cmd.id === Number(e.target.value)) || null)}>
+              {mainCommands.map((cmd) => (
+                <option key={cmd.id} value={cmd.id}>
+                  {cmd.name}
+                </option>
+              ))}
             </select>
           </div>
           {selectedCommand?.params?.split(",").map((param) => (
