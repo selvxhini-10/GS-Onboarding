@@ -47,10 +47,18 @@ def test_delete_command(fastapi_test_client: TestClient, default_datetime):
         assert result.get("command_type") == 2
         assert result.get("status") == CommandStatus.PENDING.value
         assert result.get("params") == f"1,{to_unix_time(default_datetime)}"
-        # TODO: Figure out a better way to check the times
+        # COMPLETED: Figure out a better way to check the times
         
-        assert result.get("created_on") 
-        assert result.get("updated_on")
+        # Check to make sure the dates are valid
+        created_on_dt = datetime.fromisoformat(result.get("created_on"))
+        updated_on_dt = datetime.fromisoformat(result.get("updated_on"))
+        assert isinstance(created_on_dt, datetime) # checks whether timestamp format is valid 
+        assert isinstance(updated_on_dt, datetime)
+
+        # Check to make sure the timestamp ordering is valid
+        assert created_on_dt <= updated_on_dt
+        assert updated_on_dt <= datetime.now()
+
 
 def test_main_commands(fastapi_test_client: TestClient):
     with fastapi_test_client as client:

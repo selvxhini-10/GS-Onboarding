@@ -5,7 +5,7 @@ import { CommandSingleResponse, MainCommandListResponse } from "../data/response
 
 export const createCommand = async (requestData: CommandRequest): Promise<CommandSingleResponse> => {
   try {
-    const { data } = await axios.post<CommandSingleResponse>(`${API_URL}/commands`, requestData);
+    const { data } = await axios.post(`${API_URL}/commands`, { command: requestData });    
     return data
   } catch (error) {
     console.error(`Error creating command: ${error}`);

@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from datetime import datetime
-from time import time
 from typing import Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,13 +24,21 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         request -> LoggerMiddleware -> endpoint -> response
         """
 
-        # TODO:(Member) Finish implementing this method
-        start_time = time.time()
-        logger.info(f"{datetime.now().isoformat()} REQUEST: {request.method} {request.url} - PARAMS: {await request.json()}")
-        
+        # COMPLETED:(Member) Finish implementing this method
+        start_time = datetime.now()
+
+        try:
+             body = await request.json()
+             
+        except Exception:
+             body_bytes = await request.body()
+             body = body_bytes.decode("utf-8") if body_bytes else None
+
+        logger.info(f"{datetime.now().isoformat()} REQUEST: {request.method} {request.url} - PARAMS: {body}")
+
         response = await call_next(request)
-        duration = time.time() - start_time
-        logger.info(f"[{datetime.now().isoformat()}] RESPONSE: {response.status_code} {request.url} ({duration:.2f}s)")
+        duration = datetime.now() - start_time
+        logger.info(f"[{datetime.now().isoformat()}] RESPONSE: {response.status_code} {request.url} ({duration.total_seconds():.2f}s)")
 
         return response
     

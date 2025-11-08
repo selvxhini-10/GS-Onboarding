@@ -13,7 +13,7 @@ export const getCommands = async (): Promise<CommandListResponse> => {
 }
 
 /**
- * TODO: (Member) Create a deleteCommand API function based on the following specs. You should be using axios to make the API call
+ * COMPLETED: (Member) Create a deleteCommand API function based on the following specs. You should be using axios to make the API call
  *
  * Deletes the command with the given id on the backend and returns the list of commands after its deletion.
  *

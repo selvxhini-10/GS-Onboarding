@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CommandResponse, MainCommandResponse } from "../data/response"
 import "./command_input.css"
 import { createCommand, getMainCommands } from "./input_api";
+import { CommandRequest } from "../data/request";
 
 interface CommandInputProp {
   setCommands: React.Dispatch<React.SetStateAction<CommandResponse[]>>
@@ -12,7 +13,6 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
   const [parameters, setParameters] = useState<{ [key: string]: string }>({});
   // COMPLETED: (Member) Setup anymore states if necessary
   const [mainCommands, setMainCommands] = useState<MainCommandResponse[]>([]);
-
 
   // COMPLETED: (Member) Fetch MainCommands in a useEffect
   useEffect(() => {
@@ -32,18 +32,21 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     // COMPLETED:(Member) Submit to your post endpoint 
-    e.preventDefault();
+
+    e.preventDefault(); // preventing default behavior like the page reloading when form is submitted
+    
+    //validate that a command is selected
     if (!selectedCommand) {
       alert("Please select a command type.");
       return;
     }
+    
     try {
-      const commandData = {
-        main_command_id: selectedCommand.id,
-        params: parameters,
-      };
-      const data = await createCommand(commandData);
-      setCommands(data.data);
+      const commandParams = Object.values(parameters).join(",");
+      const commandData: CommandRequest = {command_type: selectedCommand.id, params: commandParams || null};
+
+      const newCommand = await createCommand(commandData);
+      setCommands((prev) => [...prev, newCommand.data]);
     } catch (error) {
       console.error("Error creating command:", error);
     }

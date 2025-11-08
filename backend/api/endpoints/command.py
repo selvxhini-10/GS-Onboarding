@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
 from backend.api.models.request_model import CommandRequest
@@ -17,8 +17,8 @@ def get_commands(db: Session = Depends(get_db)):
 
     :return: Returns a list of commands
     """
-    query = select(Command)
-    items = db.exec(query).all()
+
+    items = db.exec(select(Command)).all()
     return {"data": items}
 
 
@@ -32,6 +32,7 @@ def create_command(payload: CommandRequest, db: Session = Depends(get_db)):
     :return: returns a json object with field of "data" under which there is the payload now pulled from the database 
     """
     # COMPLETED:(Member) Implement this endpoint
+    payload = Command.model_validate(payload.model_dump())
     db.add(payload)
     db.commit()
     db.refresh(payload)
@@ -47,12 +48,14 @@ def delete_command(id: int, db: Session = Depends(get_db)):
     :return: returns the list of commands after deleting the item
     """
     # COMPLETED:(Member) Implement this endpoint
-    command = db.get(Command, id)
-    if not command:
-        from fastapi import HTTPException
 
+    command = db.get(Command, id)
+    if not command: # raise 404 if command does not exist  
         raise HTTPException(status_code=404, detail="Command not found")
 
     db.delete(command)
     db.commit()
-    return {"data": command}
+
+    remaining_commands = db.exec(select(Command)).all()
+
+    return {"data": remaining_commands}
