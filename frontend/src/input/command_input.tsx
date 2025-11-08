@@ -17,8 +17,8 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
   // COMPLETED: (Member) Fetch MainCommands in a useEffect
   useEffect(() => {
     const fetchMainCommands = async () => {
-      const data = await getMainCommands();
-      setMainCommands(data.data);
+      const response = await getMainCommands();
+      setMainCommands(response.data);
     };
     fetchMainCommands();
   }, []);
@@ -42,15 +42,22 @@ const CommandInput = ({ setCommands }: CommandInputProp) => {
     }
     
     try {
-      const commandParams = Object.values(parameters).join(",");
-      const commandData: CommandRequest = {command_type: selectedCommand.id, params: commandParams || null};
+    const commandParams = Object.values(parameters).join(",");
+    const commandData: CommandRequest = {
+      command_type: selectedCommand.id,
+      params: commandParams || null,
+    };
 
-      const newCommand = await createCommand(commandData);
-      setCommands((prev) => [...prev, newCommand.data]);
-    } catch (error) {
-      console.error("Error creating command:", error);
-    }
+    const response = await createCommand(commandData);
+    const createdCommand = response.data; 
+    setCommands((prev) => [...prev, createdCommand]);
+
+    setSelectedCommand(null);
+    setParameters({});
+  } catch (error) {
+    console.error("Error creating command:", error);
   }
+};
 
   return (
     <>
