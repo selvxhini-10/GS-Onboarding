@@ -34,11 +34,10 @@ class LoggerMiddleware(BaseHTTPMiddleware):
              body_bytes = await request.body()
              body = body_bytes.decode("utf-8") if body_bytes else None
 
-        logger.info(f"{datetime.now().isoformat()} REQUEST: {request.method} {request.url} - PARAMS: {body}")
+        logger.info(f"REQUEST: {request.method} {request.url} - PARAMS: {body}")
 
         response = await call_next(request)
         duration = datetime.now() - start_time
-        logger.info(f"[{datetime.now().isoformat()}] RESPONSE: {response.status_code} {request.url} ({duration.total_seconds():.2f}s)")
-
+        logger.info(f"RESPONSE: {response.status_code} {request.url} ({duration.total_seconds():.2f}s)")
         return response
     

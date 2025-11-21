@@ -19,6 +19,3 @@ def get_main_commands(db: Session = Depends(get_db)):
     query = select(MainCommand)
     items = db.exec(query).all()
     return {"data": items}
-    
-
-
